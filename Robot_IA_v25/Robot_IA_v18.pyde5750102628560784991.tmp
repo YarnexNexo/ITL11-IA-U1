@@ -1,0 +1,176 @@
+#Librerias importadasa
+from matriz import matriz
+import time 
+
+#Bloque principal
+base = 8 #Base para las dimenciones del bloque "ancho y alto"
+casilla_H = 130 #Nuemro de bloque para los "Renglones"
+casilla_W = 200 #Nuemro de bloque para las "Columnas"
+
+#LEYENDA DEL: "Robot_IA_v1"
+x_Leyenda = 0
+y_Leyenda = 20
+size_Leyenda = 15
+espacio_Leyenda = 300
+contador_FPS = 0
+leyenda = ""
+badera_leyenda = True
+
+
+#Mundo Princiapal
+bandera_Graficos = False
+prueva = True
+axi_M_Matriz = []
+
+#Robot
+robot = []
+x_robot = 0
+y_robot = 0
+estado_robot = "Buscando"     
+
+#Robot
+robot2 = []
+x_robot2 = 10
+y_robot2 = 10   
+
+#Bateria
+bateria = []
+x_bateria = 10
+y_bateria = 50 
+
+#Barra de Energia
+energuia = 100
+
+def setup():
+    #Configuracion del "Leyenda"
+    global x_Leyenda
+    global contador_FPS
+    global leyenda
+    global energuia
+    global estado_robot
+
+    #Dimencion de la ventana principal
+    size((base*casilla_W+1)+espacio_Leyenda,base*casilla_H+1)
+    x_Leyenda = base*casilla_W+1
+
+def limpiar_Ventana():
+    stroke(0,0,0) #Color de borde "Negro<"
+    fill(255,255,255) #Color de fondo "Blanco"
+    rect(0,0,(base*casilla_W+1),(base*casilla_H+1))
+
+def reset_MatrizWordV():
+    #CONTENIDO DE LA MATRIZ "matrizWordV"
+    axi = []
+    
+    for i in range(casilla_H):
+        for j in range(casilla_W):
+            axi.append(0);
+        matrizWordV.append(axi)
+        axi = []
+
+def infoProgram():
+    #Dibuja fondo
+    stroke(0,0,0) #Color de fondo "Negro"
+    fill(0,0,0) #Color de borde "Negro"
+    rect((base*casilla_W+1),1,(espacio_Leyenda),(base*casilla_H+1))
+    
+    #Dibuja leyenda
+    fill(0,255,0) #Color de la fuente "Verde"
+    textSize(size_Leyenda) #Tamño de la fuente
+    contador_FPS = str(int(frameRate))
+    contador_FPS += str("\nEnerguia: ")
+    contador_FPS += str(energuia)
+    contador_FPS += str("\nEstodo: ")
+    contador_FPS += estado_robot
+    text(("Robot_IA_V15\nFPS: " + contador_FPS),x_Leyenda ,y_Leyenda)
+
+def play():
+    #robot 1
+    global robot
+    global r_robot
+    global g_robot
+    global b_robot
+        
+    robot = [[1,0],[0,0]]
+    r_robot = [[255,0],[0,0]]
+    g_robot = [[0,0],[0,0]]
+    b_robot = [[0,0],[0,0]]
+    
+    #Bateria 
+    global robot2
+    global r_robot2
+    global g_robot2
+    global b_robot2
+        
+    robot2 = [[1,0],[0,0]]
+    r_robot2 = [[0,0],[0,0]]
+    g_robot2 = [[0,0],[0,0]]
+    b_robot2 = [[255,0],[0,0]]
+    
+    #Objeto
+    global wordV
+    wordV = matriz(casilla_W,casilla_H,"Matriz mundo")
+    
+    wordV.reiniciar_M_Mat()
+    wordV.add_M_Matriz(robot,x_robot,y_robot)
+    wordV.add_M_Matriz(robot2,x_robot2,y_robot2)
+    
+    wordV.reiniciar_R_Mat()
+    wordV.add_R_Matriz(r_robot,x_robot,y_robot)
+    wordV.add_R_Matriz(r_robot2,x_robot2,y_robot2)
+    
+    wordV.reiniciar_G_Mat()
+    wordV.add_G_Matriz(g_robot,x_robot,y_robot)
+    wordV.add_G_Matriz(g_robot2,x_robot2,y_robot2)
+    
+    wordV.reiniciar_B_Mat()
+    wordV.add_B_Matriz(b_robot,x_robot,y_robot)
+    wordV.add_B_Matriz(b_robot2,x_robot2,y_robot2)
+    
+def draw():
+    #Variables globales
+    global prueva
+    global axi_M_Matriz
+    global x_robot
+    global y_robot
+    global energuia
+    global estado_robot
+    
+    #Ejecuta la aplicacion
+    play()
+    
+    #
+    if(energuia>0):
+        x_robot+=1
+        y_robot+=1
+        energuia-=1
+        estado_robot = "Buscando"
+    else:
+        estado_robot = "Sin energuia..."
+        infoProgram()
+        estado_robot = "Recargade +20..."
+        time.sleep(1)    
+        energuia+=20
+  
+    #Control para que sobrepase el limite
+    if(x_robot>60 or y_robot>60):
+        x_robot = 0
+        y_robot = 0
+        
+    #Comprueva si se imprimira la informacion de pantalla
+    if(badera_leyenda):
+        infoProgram()
+    
+    if(axi_M_Matriz!=wordV.get_M_Matriz()):
+        
+        limpiar_Ventana()
+        #Se recore la matris "wordV.get_M_Matriz()" para dibujar los bloques
+        for i in range(wordV.get_Ren()):
+            for j in range(wordV.get_Col()):
+                if(wordV.get_Element_M_Matriz(i,j) > 0):
+                    stroke(wordV.get_Element_R_Matriz(i,j),wordV.get_Element_G_Matriz(i,j),wordV.get_Element_B_Matriz(i,j))
+                    fill(wordV.get_Element_R_Matriz(i,j),wordV.get_Element_G_Matriz(i,j),wordV.get_Element_B_Matriz(i,j))
+                    rect(base*(j),base*(i),base*1,base*1)
+                    
+        axi_M_Matriz = wordV.get_M_Matriz()
+    #time.sleep(.1)
